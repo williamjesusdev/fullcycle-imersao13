@@ -1,13 +1,13 @@
-FROM golang:1.20-alpine
+FROM golang:alpine as builder
 
-WORKDIR /app
+WORKDIR /go/src/app
 
-COPY go.* ./
+COPY . .
 
-RUN go mod download && go mod verify
+RUN CGO_ENABLED=0 go build -o /app main.go
 
-COPY *.go ./
+FROM scratch
 
-RUN go build -o /fullcycle
+COPY --from=builder /app /app
 
-ENTRYPOINT ["/fullcycle"]
+CMD ["/app"]
